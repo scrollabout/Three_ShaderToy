@@ -8,6 +8,20 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "dayjs": "^1.11.13",
+    "easing-js": "github:danro/easing-js",
+    "element-plus": "^2.8.6",
+    "gl-matrix": "^3.4.3",
+    "glsl-easings": "^1.0.0",
+    "glsl-force": "github:ykob/glsl-force",
+    "glsl-inverse": "^1.0.0",
+    "glsl-noise": "^0.0.0",
+    "node-sass": "^9.0.0",
+    "sass": "^1.80.4",
+    "sass-loader": "^16.0.2",
+    "scss": "^0.2.4",
+    "style-loader": "^4.0.0",
+    "three": "^0.169.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
@@ -16,7 +30,8 @@
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
-    "@vue/cli-service": "~5.0.0"
+    "@vue/cli-service": "~5.0.0",
+    "webpack-glsl-loader": "^1.0.1"
   },
   "browserslist": [
     "> 1%",
