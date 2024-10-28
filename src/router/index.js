@@ -1,15 +1,25 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import shadertoy from './shadertoy'
+
+function setTreeRedirect (tree, parentpath = '') {
+	for (let i = 0; i < tree.length; i++) {
+		const item = tree[i]
+		if (item.children && item.children.length > 0) {
+			const childrenMenu = item.children.filter(item => item.path)
+			if (childrenMenu.length > 0) {
+				const path = `${parentpath ? parentpath : item.path}/${childrenMenu[0].path}`
+				item.redirect = {
+					path: path
+				}
+				setTreeRedirect(item.children, path)
+			}
+		}
+	}
+	return tree
+}
 
 const routes = [
-	{
-		path: '/shadertoy',
-		component: () => import('@/views/shaderToy/main.vue'),
-		redirect: { path: '/shadertoy/users' },
-		children: [
-			{ path: 'users', component: () => import('@/views/shaderToy/test2.vue') },
-			{ path: 'users/:id+', component: () => import('@/views/shaderToy/test3.vue') },
-		],
-	},
+	...setTreeRedirect(shadertoy)
 ]
 
 const router = createRouter({

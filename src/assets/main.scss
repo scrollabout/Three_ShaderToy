@@ -1,4 +1,97 @@
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.border-box {
+  box-sizing: border-box;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .full-view {
   height: 100%;
   width: 100%;
+}
+
+.full-height {
+  height: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-column-center {
+  align-items: center;
+}
+
+.flex-column-start {
+  align-items: flex-start;
+}
+
+.flex-column-end {
+  align-items: flex-end;
+}
+
+.flex-row-center {
+  justify-content: center;
+}
+
+.flex-row-start {
+  justify-content: flex-start;
+}
+
+.flex-row-end {
+  justify-content: flex-end;
+}
+
+.flex-auto-width {
+  flex: 1;
+  width: 0;
+}
+
+.flex-auto-height {
+  flex: 1;
+  height: 0;
+}
+
+@for $i from 0 through 30 {
+  .m-#{$i} {
+	margin: $i + px;
+  }
+
+  .p-#{$i} {
+	padding: $i + px;
+  }
+
+  @each $short, $long in l left, t top, r right, b bottom {
+	.m-#{$short}-#{$i} {
+	  margin-#{$long}: $i  + px;
+	}
+
+	// 定义内边距
+	.p-#{$short}-#{$i} {
+	  padding-#{$long}: $i  + px;
+	}
+  }
 }

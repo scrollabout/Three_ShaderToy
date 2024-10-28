@@ -7,15 +7,17 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
+    "ant-design-vue": "^4.2.5",
     "core-js": "^3.8.3",
     "dayjs": "^1.11.13",
     "easing-js": "github:danro/easing-js",
-    "element-plus": "^2.8.6",
     "gl-matrix": "^3.4.3",
     "glsl-easings": "^1.0.0",
     "glsl-force": "github:ykob/glsl-force",
     "glsl-inverse": "^1.0.0",
     "glsl-noise": "^0.0.0",
+    "lodash": "^4.17.21",
     "node-sass": "^9.0.0",
     "sass": "^1.80.4",
     "sass-loader": "^16.0.2",
