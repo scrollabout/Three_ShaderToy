@@ -13,6 +13,6 @@ void main() {
         t += k / abs(length(uv + torus) - (0.3 + i / 100.0));
         color += (t * (0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4)) * i * 0.5));
     }
-    // gl_FragColor = vec4(color, 1.0);
-    gl_FragColor = vec4(0.85,0.85,0.85, 1.0);
+    gl_FragColor = vec4(color, 1.0);
+    // gl_FragColor = vec4(0.85,0.85,0.85, 1.0);
 }
