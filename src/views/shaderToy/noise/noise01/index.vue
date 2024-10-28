@@ -6,112 +6,115 @@
   />
 </template>
 
-<script>
+<script setup>
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { ShaderToyMaterial } from '@/views/material/ShaderToyMaterial.js'
 import vertexShader from '@/views/shaders/shaderToy/waveForDisplacement/vertex.glsl'
 import fragmentShader from '@/views/shaders/shaderToy/waveForDisplacement/fragment.glsl'
+import { useTemplateRef, onBeforeUnmount, onMounted, nextTick } from 'vue'
 
 let composer = null
+let containerSize = {
+  width: 1,
+  height: 1
+}
+let container = null
+let renderer = null
+let controls = null
+let scene = null
+let camera = null
 
-export default {
-  data () {
-    return {
-      containerSize: {
-        width: '',
-        height: ''
-      },
-      container: '',
-      renderer: '',
-      controls: '',
-      scene: '',
-      camera: ''
-    }
-  },
-  created () {
-    window.addEventListener('resize', this.onWindowResize)
-  },
-  mounted () {
-    this.$nextTick(() => {
-      this.updateContainerSize()
-      this.init()
-    })
-  },
-  beforeDestroy () {
-    window.removeEventListener('resize', this.onWindowResize)
-    this.renderer.setAnimationLoop(null)
-  },
-  methods: {
-    init () {
-      this.container = document.getElementById('renderView')
-      this.createRender()
-      this.container.appendChild(this.renderer.domElement)
-      this.createScene()
-      this.createCamera()
-      this.createCameraControl()
-      composer = new EffectComposer(this.renderer)
-      composer.addPass(new ShaderPass(new ShaderToyMaterial({
-        uniforms: {},
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
-      })))
-    },
-    // 创建渲染器
-    createRender () {
-      this.renderer = new THREE.WebGLRenderer()
-      this.renderer.setPixelRatio(window.devicePixelRatio)
-      this.renderer.setSize(this.containerSize.width, this.containerSize.height)
-      this.renderer.setAnimationLoop(this.render)
-      // this.renderer.toneMapping = THREE.NoToneMapping
-      // this.renderer.toneMappingExposure = 0.5
-    },
-    // 创建场景
-    createScene () {
-      this.scene = new THREE.Scene()
-      const axesHelper = new THREE.AxesHelper(2000)
-      axesHelper.layers.enableAll()
-      this.scene.add(axesHelper)
-    },
-    // 创建摄像机
-    createCamera () {
-      this.camera = new THREE.PerspectiveCamera(55, this.containerSize.width / this.containerSize.height, 1, 20000)
-      this.camera.position.set(0, 0, 60)
-    },
-    // 创建摄像机控制器
-    createCameraControl () {
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-      // this.controls.maxPolarAngle = Math.PI * 0.495
-      this.controls.target.set(0, 0, 0)
-      // this.controls.minDistance = 40.0
-      // this.controls.maxDistance = 200.0
-      this.controls.update()
-    },
-    // 更新渲染框的大小
-    updateContainerSize () {
-      const width = this.$refs.renderView ? this.$refs.renderView.offsetWidth : 1
-      const height = this.$refs.renderView ? this.$refs.renderView.offsetHeight : 1
-      this.containerSize.width = width
-      this.containerSize.height = height
-      return {
-        width,
-        height
-      }
-    },
-    // 窗口变化
-    onWindowResize () {
-      const size = this.updateContainerSize()
-      this.camera.aspect = size.width / size.height
-      this.camera.updateProjectionMatrix()
-      this.renderer.setSize(size.width, size.height)
-      composer.setSize(size.width, size.height)
-    },
-    // 渲染
-    render () {
-      composer.render()
-    }
+const $refs = useTemplateRef('renderView')
+
+window.addEventListener('resize', onWindowResize)
+
+onMounted(() => {
+  nextTick(() => {
+    updateContainerSize()
+    init()
+  })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onWindowResize)
+  renderer.setAnimationLoop(null)
+})
+
+function init () {
+  container = document.getElementById('renderView')
+  createRender()
+  container.appendChild(renderer.domElement)
+  createScene()
+  createCamera()
+  createCameraControl()
+  composer = new EffectComposer(renderer)
+  composer.addPass(new ShaderPass(new ShaderToyMaterial({
+    uniforms: {},
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader
+  })))
+}
+
+// 创建渲染器
+function createRender () {
+  renderer = new THREE.WebGLRenderer()
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setSize(containerSize.width, containerSize.height)
+  renderer.setAnimationLoop(render)
+  // renderer.toneMapping = THREE.NoToneMapping
+  // renderer.toneMappingExposure = 0.5
+}
+
+// 创建场景
+function createScene () {
+  scene = new THREE.Scene()
+  const axesHelper = new THREE.AxesHelper(2000)
+  axesHelper.layers.enableAll()
+  scene.add(axesHelper)
+}
+
+// 创建摄像机
+function createCamera () {
+  camera = new THREE.PerspectiveCamera(55, containerSize.width / containerSize.height, 1, 20000)
+  camera.position.set(0, 0, 60)
+}
+
+// 创建摄像机控制器
+function createCameraControl () {
+  controls = new OrbitControls(camera, renderer.domElement)
+  // controls.maxPolarAngle = Math.PI * 0.495
+  controls.target.set(0, 0, 0)
+  // controls.minDistance = 40.0
+  // controls.maxDistance = 200.0
+  controls.update()
+}
+
+// 更新渲染框的大小
+function updateContainerSize () {
+  const width = $refs.value ? $refs.value.offsetWidth : 1
+  const height = $refs.value ? $refs.value.offsetHeight : 1
+  containerSize.width = width
+  containerSize.height = height
+  return {
+    width,
+    height
   }
+}
+
+// 窗口变化
+function onWindowResize () {
+  const size = updateContainerSize()
+  camera.aspect = size.width / size.height
+  camera.updateProjectionMatrix()
+  renderer.setSize(size.width, size.height)
+  composer.setSize(size.width, size.height)
+}
+
+// 渲染
+function render () {
+  composer.render()
 }
 </script>
 
