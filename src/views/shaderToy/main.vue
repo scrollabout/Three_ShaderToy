@@ -12,7 +12,10 @@
         />
       </a-layout-sider>
     </a-layout>
-    <div class="full-width p-10 border-box view-box">
+    <div
+      class="full-width full-height p-10 border-box view-box"
+      style="overflow-y: hidden;"
+    >
       <router-view />
     </div>
   </div>

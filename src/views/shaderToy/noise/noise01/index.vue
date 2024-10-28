@@ -1,8 +1,8 @@
 <template>
   <div
-    id="damMonitoring"
-    ref="damRef"
-    style="width: 100%; height: 100%;"
+    id="renderView"
+    ref="renderView"
+    class="full-view"
   />
 </template>
 
@@ -13,11 +13,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { ShaderToyMaterial } from '@/views/material/ShaderToyMaterial.js'
 import vertexShader from '@/views/shaders/shaderToy/waveForDisplacement/vertex.glsl'
 import fragmentShader from '@/views/shaders/shaderToy/waveForDisplacement/fragment.glsl'
-import glMatix from 'gl-matrix'
+
+let composer = null
 
 export default {
   data () {
-    this.composer = null
     return {
       containerSize: {
         width: '',
@@ -45,14 +45,14 @@ export default {
   },
   methods: {
     init () {
-      this.container = document.getElementById('damMonitoring')
+      this.container = document.getElementById('renderView')
       this.createRender()
       this.container.appendChild(this.renderer.domElement)
       this.createScene()
       this.createCamera()
       this.createCameraControl()
-      this.composer = new EffectComposer(this.renderer)
-      this.composer.addPass(new ShaderPass(new ShaderToyMaterial({
+      composer = new EffectComposer(this.renderer)
+      composer.addPass(new ShaderPass(new ShaderToyMaterial({
         uniforms: {},
         vertexShader: vertexShader,
         fragmentShader: fragmentShader
@@ -90,8 +90,8 @@ export default {
     },
     // 更新渲染框的大小
     updateContainerSize () {
-      const width = this.$refs.damRef ? this.$refs.damRef.offsetWidth : 1
-      const height = this.$refs.damRef ? this.$refs.damRef.offsetHeight : 1
+      const width = this.$refs.renderView ? this.$refs.renderView.offsetWidth : 1
+      const height = this.$refs.renderView ? this.$refs.renderView.offsetHeight : 1
       this.containerSize.width = width
       this.containerSize.height = height
       return {
@@ -105,11 +105,11 @@ export default {
       this.camera.aspect = size.width / size.height
       this.camera.updateProjectionMatrix()
       this.renderer.setSize(size.width, size.height)
-      this.composer.setSize(size.width, size.height)
+      composer.setSize(size.width, size.height)
     },
     // 渲染
     render () {
-      this.composer.render()
+      composer.render()
     }
   }
 }
