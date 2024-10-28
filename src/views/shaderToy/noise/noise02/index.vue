@@ -9,7 +9,6 @@
 <script setup>
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { ShaderToyMaterial } from '@/views/material/ShaderToyMaterial.js'
 import vertexShader from '@/views/shaders/noise02/vertex.glsl'
 import fragmentShader from '@/views/shaders/noise02/fragment.glsl'
@@ -22,9 +21,6 @@ let containerSize = {
 }
 let container = null
 let renderer = null
-let controls = null
-let scene = null
-let camera = null
 
 const $refs = useTemplateRef('renderView')
 
@@ -46,9 +42,6 @@ function init () {
   container = document.getElementById('renderView')
   createRender()
   container.appendChild(renderer.domElement)
-  createScene()
-  createCamera()
-  createCameraControl()
   composer = new EffectComposer(renderer)
   composer.addPass(new ShaderPass(new ShaderToyMaterial({
     uniforms: {},
@@ -67,30 +60,6 @@ function createRender () {
   // renderer.toneMappingExposure = 0.5
 }
 
-// 创建场景
-function createScene () {
-  scene = new THREE.Scene()
-  const axesHelper = new THREE.AxesHelper(2000)
-  axesHelper.layers.enableAll()
-  scene.add(axesHelper)
-}
-
-// 创建摄像机
-function createCamera () {
-  camera = new THREE.PerspectiveCamera(55, containerSize.width / containerSize.height, 1, 20000)
-  camera.position.set(0, 0, 60)
-}
-
-// 创建摄像机控制器
-function createCameraControl () {
-  controls = new OrbitControls(camera, renderer.domElement)
-  // controls.maxPolarAngle = Math.PI * 0.495
-  controls.target.set(0, 0, 0)
-  // controls.minDistance = 40.0
-  // controls.maxDistance = 200.0
-  controls.update()
-}
-
 // 更新渲染框的大小
 function updateContainerSize () {
   const width = $refs.value ? $refs.value.offsetWidth : 1
@@ -106,8 +75,6 @@ function updateContainerSize () {
 // 窗口变化
 function onWindowResize () {
   const size = updateContainerSize()
-  camera.aspect = size.width / size.height
-  camera.updateProjectionMatrix()
   renderer.setSize(size.width, size.height)
   composer.setSize(size.width, size.height)
 }
