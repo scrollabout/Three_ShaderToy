@@ -11,8 +11,8 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { ShaderToyMaterial } from '@/views/material/ShaderToyMaterial.js'
-import vertexShader from '@/views/shaders/noise01/vertex.glsl'
-import fragmentShader from '@/views/shaders/noise01/fragment.glsl'
+import vertexShader from '@/views/shaders/noise02/vertex.glsl'
+import fragmentShader from '@/views/shaders/noise02/fragment.glsl'
 import { useTemplateRef, onBeforeUnmount, onMounted, nextTick } from 'vue'
 
 let composer = null
