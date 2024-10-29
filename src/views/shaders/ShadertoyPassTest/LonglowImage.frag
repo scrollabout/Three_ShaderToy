@@ -1,3 +1,5 @@
+// 来源https://www.shadertoy.com/view/7dlBW2
+
 // Fork of "Longlow 2.0" by firebreathz. https://shadertoy.com/view/7ssfDj
 // 2022-02-21 10:38:39
 
