@@ -7,10 +7,10 @@
 </template>
 
 <script setup>
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ShaderToyMaterial } from '@/views/material/ShaderToyMaterial.js'
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { ShadertoyMaterial } from '@/views/material/ShadertoyMaterial.js'
 import vertexShader from '@/views/shaders/noise01/vertex.glsl'
 import fragmentShader from '@/views/shaders/noise01/fragment.glsl'
 import { useTemplateRef, onBeforeUnmount, onMounted, nextTick } from 'vue'
@@ -50,7 +50,7 @@ function init () {
   createCamera()
   createCameraControl()
   composer = new EffectComposer(renderer)
-  composer.addPass(new ShaderPass(new ShaderToyMaterial({
+  composer.addPass(new ShaderPass(new ShadertoyMaterial({
     uniforms: {},
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

@@ -4,7 +4,7 @@ module.exports = defineConfig({
 	transpileDependencies: true,
 	configureWebpack: config => {
 		config.module.rules.push({
-			test: /\.glsl$/,
+			test: /\.(glsl|frag|vert)$/,
 			use: [
 				{
 					loader: 'webpack-glsl-loader'
