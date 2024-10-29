@@ -54,4 +54,8 @@ export class ShadertoyPass extends Pass {
 	getBufferRenderTarget (bufferIndex) {
 		return this._Buffers[bufferIndex].readBuffer
 	}
+
+	setUniforms (bufferIndex, prop, value) {
+		return this._Buffers[bufferIndex].setUniforms(prop, value)
+	}
 }

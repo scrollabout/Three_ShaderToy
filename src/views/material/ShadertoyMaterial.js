@@ -153,6 +153,10 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		return this._iChannels[channelIndex].value = value
 	}
 
+	setUniforms (prop, value) {
+		this.uniforms[prop] = value
+	}
+
 	onMouseMove (e) {
 		const X = e.offsetX
 		const Y = this._iResolution.y - e.offsetY

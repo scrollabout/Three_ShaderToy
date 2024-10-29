@@ -28,6 +28,10 @@ export class ShadertoyBufferPass extends Pass {
 		this.readBuffer.setSize(width, height)
 	}
 
+	setUniforms (prop, value) {
+		this.material.setUniforms(prop, value)
+	}
+
 	getChannel (channelIndex) {
 		return this.material.getChannel(channelIndex)
 	}
