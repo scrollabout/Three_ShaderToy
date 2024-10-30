@@ -34,11 +34,11 @@ export class ShadertoyPass extends Pass {
 	}
 
 	render (renderer, writeBuffer, readBuffer) {
-		this._BufferDParameters && this.BufferD.render()
-		this._BufferCParameters && this.BufferC.render()
-		this._BufferBParameters && this.BufferB.render()
-		this._BufferAParameters && this.BufferA.render()
-		this.Image.render()
+		this._BufferDParameters && this.BufferD.render(renderer, writeBuffer, readBuffer)
+		this._BufferCParameters && this.BufferC.render(renderer, writeBuffer, readBuffer)
+		this._BufferBParameters && this.BufferB.render(renderer, writeBuffer, readBuffer)
+		this._BufferAParameters && this.BufferA.render(renderer, writeBuffer, readBuffer)
+		this.Image.render(renderer, writeBuffer, readBuffer)
 	}
 
 	/**

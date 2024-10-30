@@ -61,7 +61,6 @@ function init () {
       fragmentShader: LonglowBufferA
     },
   )
-  shadertoyPass.setIChannel(0, 0, shadertoyPass.getBufferRenderTarget(1).texture)
   composer.addPass(shadertoyPass)
 }
 

@@ -1,5 +1,6 @@
 <template>
   <div class="full-view flex-row">
+    <!--    <canvas ref="mainBackground" class="full-view" style="position: absolute; top: 0; left: 0;" />-->
     <a-layout class="full-height">
       <a-layout-sider v-model:collapsed="collapsed" width="250" collapsible style="overflow-y: auto;">
         <a-menu
@@ -22,8 +23,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, h, resolveComponent } from 'vue'
+import { ref, reactive, h, resolveComponent, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useRenderMixin } from '@/views/mixins/renderMixins'
+import { useBaseMixins } from '@/views/mixins/baseMixins'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,6 +39,12 @@ const items = reactive(menuTree)
 const selectedKeys = ref([route.fullPath])
 const openKeys = ref([...findTreeFollowPath(menuTree, route.fullPath)])
 
+let { override, test } = useBaseMixins()
+
+override.test = function () {
+  test()
+  console.log('22222')
+}
 
 function getItem (label, key, icon, children, type) {
   return { key, icon: () => h(resolveComponent(icon)), children, label, type }
@@ -75,6 +84,9 @@ function menuClick ({ keyPath }) {
   router.push({ path: keyPath[keyPath.length - 1] })
 }
 
+function initBackground () {
+
+}
 
 </script>
 

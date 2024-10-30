@@ -40,7 +40,7 @@ export class ShadertoyBufferPass extends Pass {
 		return this.material.setChannel(channelIndex, value)
 	}
 
-	render () {
+	render (renderer, writeBuffer, readBuffer) {
 		if (this.renderToScreen) {
 			this.renderer.setRenderTarget(null)
 			this.fsQuad.render(this.renderer)
@@ -50,6 +50,7 @@ export class ShadertoyBufferPass extends Pass {
 				this.renderer.clear(this.renderer.autoClearColor, this.renderer.autoClearDepth, this.renderer.autoClearStencil)
 			}
 			this.fsQuad.render(this.renderer)
+			this.writeBuffer = writeBuffer
 			this.swapBuffers()
 		}
 	}

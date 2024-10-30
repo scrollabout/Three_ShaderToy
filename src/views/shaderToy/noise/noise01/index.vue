@@ -11,7 +11,6 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { ShadertoyMaterial } from '@/views/material/ShadertoyMaterial.js'
-import vertexShader from '@/views/shaders/noise01/vertex.glsl'
 import fragmentShader from '@/views/shaders/noise01/fragment.glsl'
 import { useTemplateRef, onBeforeUnmount, onMounted, nextTick } from 'vue'
 
@@ -20,7 +19,6 @@ let containerSize = {
   width: 1,
   height: 1
 }
-let container = null
 let renderer = null
 let controls = null
 let scene = null
@@ -43,16 +41,13 @@ onBeforeUnmount(() => {
 })
 
 function init () {
-  container = document.getElementById('renderView')
   createRender()
-  container.appendChild(renderer.domElement)
+  $refs.value.appendChild(renderer.domElement)
   createScene()
   createCamera()
   createCameraControl()
   composer = new EffectComposer(renderer)
   composer.addPass(new ShaderPass(new ShadertoyMaterial({
-    uniforms: {},
-    vertexShader: vertexShader,
     fragmentShader: fragmentShader
   })))
 }
