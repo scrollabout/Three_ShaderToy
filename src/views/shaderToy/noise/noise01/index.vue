@@ -11,7 +11,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { ShadertoyMaterial } from '@/views/material/ShadertoyMaterial.js'
-import fragmentShader from '@/views/shaders/noise01/fragment.glsl'
+import fragmentShader from '@/views/shaders/proceduralOcean/proceduralOcean.frag'
 import { useTemplateRef, onBeforeUnmount, onMounted, nextTick } from 'vue'
 
 let composer = null

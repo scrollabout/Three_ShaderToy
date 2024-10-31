@@ -1,20 +1,24 @@
-import { onMounted, onUnmounted, toValue, useTemplateRef } from 'vue'
+import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
 
 export function useRenderMixin (domRefName) {
 	const domElement = useTemplateRef(domRefName)
-	let renderer = null
-	let camera = null
+	let renderer = ref(null)
+	let camera = ref(null)
 
 	const override = {
 		createRender () {
 			const { width, height } = override.getDomSize()
-			renderer = new THREE.WebGLRenderer()
-			renderer.setPixelRatio(window.devicePixelRatio)
-			renderer.setSize(width, height)
+			renderer.value = new THREE.WebGLRenderer()
+			renderer.value.setPixelRatio(window.devicePixelRatio)
+			renderer.value.setSize(width, height)
 			// renderer.toneMapping = THREE.NoToneMapping
 			// renderer.toneMappingExposure = 0.5
-			domElement.value.appendChild(renderer.domElement)
-			renderer.setAnimationLoop(override.render)
+			domElement.value.appendChild(renderer.value.domElement)
+		},
+
+		createCamera () {
+			const { width, height } = override.getDomSize()
+			camera.value = new THREE.PerspectiveCamera(60, width / height)
 		},
 
 		getDomSize () {
@@ -28,9 +32,9 @@ export function useRenderMixin (domRefName) {
 
 		onWindowResize () {
 			const { width, height } = override.getDomSize()
-			camera.aspect = width / height
-			camera.updateProjectionMatrix()
-			renderer.setSize(width, height)
+			camera.value.aspect = width / height
+			camera.value.updateProjectionMatrix()
+			renderer.value.setSize(width, height)
 		},
 
 		render () {
@@ -40,11 +44,13 @@ export function useRenderMixin (domRefName) {
 	onMounted(() => {
 		window.addEventListener('resize', override.onWindowResize)
 		override.createRender()
+		override.createCamera()
+		renderer.value.setAnimationLoop(override.render)
 	})
 
 	onUnmounted(() => {
 		window.removeEventListener('mousemove', override.onWindowResize)
-		renderer.setAnimationLoop(null)
+		renderer.value.setAnimationLoop(null)
 	})
 
 	return {

@@ -1,23 +1,21 @@
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 export function useBaseMixins () {
 
 	let temp = 0
 
-	const override = {
-		test (str = '') {
-			console.log(str + '-' + temp)
-			temp += 1
-		}
+	function test (str = '') {
+		console.log(str + '-' + temp)
+		temp += 1
 	}
 
 	onMounted(() => {
-		window.addEventListener('resize', override.test)
-		override.test()
+		window.addEventListener('resize', test)
+		console.log('asdasd')
+		temp += 1
 	})
 
 	return {
-		override,
-		...override
+		temp
 	}
 }

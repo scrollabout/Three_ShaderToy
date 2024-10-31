@@ -1,6 +1,6 @@
 <template>
   <div class="full-view flex-row">
-    <!--    <canvas ref="mainBackground" class="full-view" style="position: absolute; top: 0; left: 0;" />-->
+    <div ref="mainBackground" class="full-view" style="position: absolute; top: 0; left: 0; z-index: -1;" />
     <a-layout class="full-height">
       <a-layout-sider v-model:collapsed="collapsed" width="250" collapsible style="overflow-y: auto;">
         <a-menu
@@ -14,7 +14,7 @@
       </a-layout-sider>
     </a-layout>
     <div
-      class="full-width full-height p-10 border-box view-box"
+      class="full-view p-10 view-box border-box"
       style="overflow-y: hidden;"
     >
       <router-view />
@@ -23,10 +23,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, h, resolveComponent, onMounted } from 'vue'
+import { ref, reactive, h, resolveComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useRenderMixin } from '@/views/mixins/renderMixins'
-import { useBaseMixins } from '@/views/mixins/baseMixins'
+import { useShadertoyRenderMixins } from '@/views/mixins/shadertoyRenderMixins'
+import proceduralOcean from '@/views/shaders/proceduralOcean/proceduralOcean.frag'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,12 +39,9 @@ const items = reactive(menuTree)
 const selectedKeys = ref([route.fullPath])
 const openKeys = ref([...findTreeFollowPath(menuTree, route.fullPath)])
 
-let { override, test } = useBaseMixins()
-
-override.test = function () {
-  test()
-  console.log('22222')
-}
+useShadertoyRenderMixins('mainBackground', {
+  fragmentShader: proceduralOcean
+})
 
 function getItem (label, key, icon, children, type) {
   return { key, icon: () => h(resolveComponent(icon)), children, label, type }
@@ -84,14 +81,10 @@ function menuClick ({ keyPath }) {
   router.push({ path: keyPath[keyPath.length - 1] })
 }
 
-function initBackground () {
-
-}
-
 </script>
 
 <style scoped lang="scss">
 .view-box {
-  background: #efefef;
+  // background: #efefef;
 }
 </style>

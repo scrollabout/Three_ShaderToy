@@ -1,6 +1,7 @@
 import { useRenderMixin } from '@/views/mixins/renderMixins'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { ShadertoyPass } from '@/views/pass/ShadertoyPass'
+import { onMounted, ref, toRaw } from 'vue'
 
 export function useShadertoyRenderMixins (
 	domRefName,
@@ -11,28 +12,38 @@ export function useShadertoyRenderMixins (
 	BufferCParameters = undefined,
 	BufferDParameters = undefined
 ) {
-	let { renderer, render, onWindowResize } = useRenderMixin(domRefName)
-	const composer = new EffectComposer(renderer)
-	const shadertoyPass = new ShadertoyPass(
-		renderer,
-		ImageParameters,
-		Common,
-		BufferAParameters,
-		BufferBParameters,
-		BufferCParameters,
-		BufferDParameters
-	)
-	composer.addPass(shadertoyPass)
+	const renderMixins = useRenderMixin(domRefName)
+	let composer = ref(null)
+	let shadertoyPass = ref(null)
 
-	const parentOnWindowResize = onWindowResize
-	onWindowResize = function () {
-		parentOnWindowResize()
+	onMounted(() => {
+		composer.value = new EffectComposer(renderMixins.renderer.value)
+		shadertoyPass.value = new ShadertoyPass(
+			renderMixins.renderer.value,
+			ImageParameters,
+			Common,
+			BufferAParameters,
+			BufferBParameters,
+			BufferCParameters,
+			BufferDParameters
+		)
+		composer.value.addPass(shadertoyPass.value)
+	})
+
+	renderMixins.override.onWindowResize = function () {
+		renderMixins.onWindowResize()
 		const size = new THREE.Vector2()
-		renderer.getSize(size)
-		composer.setSize(size.x, size.y)
+		renderMixins.renderer.value.getSize(size)
+		composer.value.setSize(size.x, size.y)
 	}
 
-	render = function () {
-		composer.render()
+	renderMixins.override.render = function () {
+		toRaw(composer.value).render()
+	}
+
+	return {
+		composer,
+		shadertoyPass,
+		...renderMixins
 	}
 }
