@@ -12,7 +12,7 @@ export class ShadertoyPass extends Pass {
 		BufferDParameters = undefined
 	) {
 		super()
-		this.isEnabled = ImageParameters !== undefined
+		this.enabled = ImageParameters !== undefined
 		this._Buffers = [
 			new ShadertoyBufferPass(renderer, ImageParameters, Common),
 			new ShadertoyBufferPass(renderer, BufferAParameters, Common),
@@ -30,7 +30,7 @@ export class ShadertoyPass extends Pass {
 
 	render (renderer, writeBuffer, readBuffer) {
 		for (let i = this._Buffers.length - 1; i >= 0; i--) {
-			if (this._Buffers[i].isEnabled()) {
+			if (this._Buffers[i].enabled) {
 				this._Buffers[i].render(renderer, writeBuffer, readBuffer)
 			}
 		}

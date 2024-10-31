@@ -14,17 +14,21 @@ export class ShadertoyBufferPass extends Pass {
 		})
 		this.readBuffer = this.writeBuffer.clone()
 		// 兼容three.js其它通道传过来的渲染目标
-		const passCommonShader = 'uniform sampler2D tDiffuse;'
-		if (this.isEnabled()) {
-			if (parameters.uniforms) {
-				parameters.uniforms.tDiffuse = { value: null }
-			} else {
-				parameters.uniforms = {
-					tDiffuse: { value: null }
-				}
+		let localcommon = common
+		if (this.enabled) {
+			const passCommonShader = [
+				'uniform sampler2D tDiffuse;'
+			]
+			parameters.uniforms = {
+				tDiffuse: { value: null },
+				...parameters.uniforms
 			}
+			localcommon = `
+				${passCommonShader.join('\n')}
+				${common || ''}
+			`
 		}
-		this.material = new ShadertoyMaterial(parameters, passCommonShader + (common || ''))
+		this.material = new ShadertoyMaterial(parameters, localcommon)
 		this.fsQuad = new FullScreenQuad(this.material)
 	}
 
@@ -42,10 +46,6 @@ export class ShadertoyBufferPass extends Pass {
 		this.readBuffer.setSize(width, height)
 	}
 
-	isEnabled () {
-		return this.enabled
-	}
-
 	setUniforms (prop, value) {
 		this.material.setUniforms(prop, value)
 	}
@@ -58,7 +58,7 @@ export class ShadertoyBufferPass extends Pass {
 		return this.material.setChannel(channelIndex, value)
 	}
 
-	dispose(){
+	dispose () {
 		super.dispose()
 		this.writeBuffer.dispose()
 		this.readBuffer.dispose()
@@ -67,7 +67,7 @@ export class ShadertoyBufferPass extends Pass {
 	}
 
 	render (renderer, writeBuffer, readBuffer) {
-		if (!this.isEnabled()) {
+		if (!this.enabled) {
 			return
 		}
 		this.setUniforms('tDiffuse', readBuffer.texture)
