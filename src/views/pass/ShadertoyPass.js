@@ -12,37 +12,26 @@ export class ShadertoyPass extends Pass {
 		BufferDParameters = undefined
 	) {
 		super()
-		this.Common = Common
-		this._ImageParameters = _.cloneDeep(ImageParameters)
-		this._BufferAParameters = _.cloneDeep(BufferAParameters)
-		this._BufferBParameters = _.cloneDeep(BufferBParameters)
-		this._BufferCParameters = _.cloneDeep(BufferCParameters)
-		this._BufferDParameters = _.cloneDeep(BufferDParameters)
 		this._Buffers = [
-			new ShadertoyBufferPass(renderer, this._ImageParameters, this.Common),
-			new ShadertoyBufferPass(renderer, this._BufferAParameters, this.Common),
-			new ShadertoyBufferPass(renderer, this._BufferBParameters, this.Common),
-			new ShadertoyBufferPass(renderer, this._BufferCParameters, this.Common),
-			new ShadertoyBufferPass(renderer, this._BufferDParameters, this.Common)
+			new ShadertoyBufferPass(renderer, ImageParameters, Common),
+			new ShadertoyBufferPass(renderer, BufferAParameters, Common),
+			new ShadertoyBufferPass(renderer, BufferBParameters, Common),
+			new ShadertoyBufferPass(renderer, BufferCParameters, Common),
+			new ShadertoyBufferPass(renderer, BufferDParameters, Common)
 		]
-		this.Image = this._Buffers[0]
-		this.Image.renderToScreen = true
-		this.BufferA = this._Buffers[1]
-		this.BufferB = this._Buffers[2]
-		this.BufferC = this._Buffers[3]
-		this.BufferD = this._Buffers[4]
+		this._Buffers[0].renderToScreen = this.renderToScreen
 	}
 
 	render (renderer, writeBuffer, readBuffer) {
-		this._BufferDParameters && this.BufferD.render(renderer, writeBuffer, readBuffer)
-		this._BufferCParameters && this.BufferC.render(renderer, writeBuffer, readBuffer)
-		this._BufferBParameters && this.BufferB.render(renderer, writeBuffer, readBuffer)
-		this._BufferAParameters && this.BufferA.render(renderer, writeBuffer, readBuffer)
-		this.Image.render(renderer, writeBuffer, readBuffer)
+		for (let i = this._Buffers.length - 1; i >= 0; i--) {
+			if (this._Buffers[i].isEnabled()) {
+				this._Buffers[i].render(renderer, writeBuffer, readBuffer)
+			}
+		}
 	}
 
 	/**
-	 * 设置iChannelxx
+	 * 设置iChannelx
 	 * @param bufferIndex Buffer编号，0：Image，1：BufferA，2：BufferB，3：BufferC，4：BufferD
 	 * @param channelIndex iChannel编号
 	 * @param value	设置给iChannel的值，现阶段只支持传sampler2D（texture）
@@ -51,8 +40,21 @@ export class ShadertoyPass extends Pass {
 		this._Buffers[bufferIndex].setChannel(channelIndex, value)
 	}
 
+	setRenderToScreen (val) {
+		this.renderToScreen = val
+		this._Buffers[0].renderToScreen = this.renderToScreen
+	}
+
+	getBuffer (bufferIndex) {
+		return this._Buffers[bufferIndex]
+	}
+
 	getBufferRenderTarget (bufferIndex) {
-		return this._Buffers[bufferIndex].readBuffer
+		return this.getBuffer(bufferIndex).readBuffer
+	}
+
+	getRenderMesh () {
+		return this._Buffers[0].fsQuad
 	}
 
 	setUniforms (bufferIndex, prop, value) {

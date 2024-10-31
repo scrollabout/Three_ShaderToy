@@ -1,9 +1,11 @@
 import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 export function useRenderMixin (domRefName) {
 	const domElement = useTemplateRef(domRefName)
 	let renderer = ref(null)
 	let camera = ref(null)
+	let cameraControls = ref(null)
 
 	const override = {
 		createRender () {
@@ -19,6 +21,10 @@ export function useRenderMixin (domRefName) {
 		createCamera () {
 			const { width, height } = override.getDomSize()
 			camera.value = new THREE.PerspectiveCamera(60, width / height)
+		},
+
+		createCameraControl () {
+			cameraControls.value = new OrbitControls(camera.value, renderer.value.domElement)
 		},
 
 		getDomSize () {
@@ -45,6 +51,7 @@ export function useRenderMixin (domRefName) {
 		window.addEventListener('resize', override.onWindowResize)
 		override.createRender()
 		override.createCamera()
+		override.createCameraControl()
 		renderer.value.setAnimationLoop(override.render)
 	})
 

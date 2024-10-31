@@ -27,6 +27,7 @@ export function useShadertoyRenderMixins (
 			BufferCParameters,
 			BufferDParameters
 		)
+		shadertoyPass.value.setRenderToScreen(true)
 		composer.value.addPass(shadertoyPass.value)
 	})
 

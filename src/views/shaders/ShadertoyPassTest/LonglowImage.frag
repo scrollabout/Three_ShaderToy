@@ -52,5 +52,7 @@ void main()
     // fade in / fade out
     col *= sat(time * 2.) * sat(131. - time);
 
-    gl_FragColor = vec4(col, 1);
+    vec4 base = texture2D(tDiffuse, uv);
+
+    gl_FragColor = vec4(length(base.rgb) > 0.0 ? base.rgb : col.rgb, 1);
 }

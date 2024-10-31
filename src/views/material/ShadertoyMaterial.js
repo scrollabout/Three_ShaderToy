@@ -14,31 +14,32 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		this._iMouse = new THREE.Vector4(0, 0, 0, 0)
 		this._iDate = new THREE.Vector4(0, 0, 0, 0)
 		if (parameters !== undefined) {
-			const baseUniformArray = `
-    	  uniform vec3 iResolution;
-    	  uniform float iTime;
-    	  uniform float iTimeDelta;
-    	  uniform float iFrameRate;
-    	  uniform int iFrame;
-    	  uniform vec4 iMouse;
-    	  uniform vec4 iDate;
-    	  uniform float iChannelTime[4];
-    	  uniform sampler2D iChannel0;
-    	  uniform sampler2D iChannel1;
-    	  uniform sampler2D iChannel2;
-    	  uniform sampler2D iChannel3;
-    	  uniform vec3 iChannelResolution[4]
-    	`.split('\n')
+			const baseUniformArray = [
+				'uniform vec3 iResolution;',
+				'uniform float iTime;',
+				'uniform float iTimeDelta;',
+				'uniform float iFrameRate;',
+				'uniform int iFrame;',
+				'uniform vec4 iMouse;',
+				'uniform vec4 iDate;',
+				'uniform float iChannelTime[4];',
+				'uniform sampler2D iChannel0;',
+				'uniform sampler2D iChannel1;',
+				'uniform sampler2D iChannel2;',
+				'uniform sampler2D iChannel3;',
+				'uniform vec3 iChannelResolution[4];',
+				'varying vec2 vUv;'
+			]
 			const vertexshader = parameters.vertexShader || vertex
 			const vertexAppend = baseUniformArray.filter(v => !vertexshader.includes(v))
 			this.vertexShader = `
-    	  ${vertexAppend.length > 0 ? `${vertexAppend.join('')};` : ''}
+    	  ${vertexAppend.length > 0 ? `${vertexAppend.join('\n')}` : ''}
     	  ${common || ''}
     	  ${vertexshader}
     	`
 			const fragmentAppend = baseUniformArray.filter(v => !parameters.fragmentShader.includes(v))
 			this.fragmentShader = `
-    	  ${fragmentAppend.length > 0 ? `${fragmentAppend.join('')};` : ''}
+    	  ${fragmentAppend.length > 0 ? `${fragmentAppend.join('\n')}` : ''}
     	  ${common || ''}
     	  ${parameters.fragmentShader}
     	`
@@ -154,7 +155,7 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 	}
 
 	setUniforms (prop, value) {
-		this.uniforms[prop] = value
+		this.uniforms[prop].value = value
 	}
 
 	onMouseMove (e) {

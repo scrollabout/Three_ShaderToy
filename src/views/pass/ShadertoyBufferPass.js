@@ -7,25 +7,43 @@ export class ShadertoyBufferPass extends Pass {
 		this.renderer = renderer
 		const renderSize = new THREE.Vector2(0, 0)
 		renderer.getSize(renderSize)
+		this.enabled = parameters !== undefined
 		this.writeBuffer = new THREE.WebGLRenderTarget(renderSize.x, renderSize.y, {
 			format: THREE.RGBAFormat,
 			type: THREE.FloatType,
 		})
 		this.readBuffer = this.writeBuffer.clone()
-		this.material = new ShadertoyMaterial(parameters, common)
+		// 兼容three.js其它传过来的Pass的渲染目标
+		const passCommonShader = 'uniform sampler2D tDiffuse;'
+		if (this.isEnabled()) {
+			if (parameters.uniforms) {
+				parameters.uniforms.tDiffuse = { value: null }
+			} else {
+				parameters.uniforms = {
+					tDiffuse: { value: null }
+				}
+			}
+		}
+		this.material = new ShadertoyMaterial(parameters, passCommonShader + (common || ''))
 		this.fsQuad = new FullScreenQuad(this.material)
 	}
 
 	swapBuffers () {
-		const temp = this.readBuffer
-		this.readBuffer = this.writeBuffer
-		this.writeBuffer = temp
+		if (this.needsSwap) {
+			const temp = this.readBuffer
+			this.readBuffer = this.writeBuffer
+			this.writeBuffer = temp
+		}
 	}
 
 	setSize (width, height) {
 		super.setSize(width, height)
 		this.writeBuffer.setSize(width, height)
 		this.readBuffer.setSize(width, height)
+	}
+
+	isEnabled () {
+		return this.enabled
 	}
 
 	setUniforms (prop, value) {
@@ -41,17 +59,22 @@ export class ShadertoyBufferPass extends Pass {
 	}
 
 	render (renderer, writeBuffer, readBuffer) {
-		if (this.renderToScreen) {
-			this.renderer.setRenderTarget(null)
-			this.fsQuad.render(this.renderer)
-		} else {
-			this.renderer.setRenderTarget(this.writeBuffer)
-			if (this.clear) {
-				this.renderer.clear(this.renderer.autoClearColor, this.renderer.autoClearDepth, this.renderer.autoClearStencil)
-			}
-			this.fsQuad.render(this.renderer)
-			this.writeBuffer = writeBuffer
-			this.swapBuffers()
+		if (!this.isEnabled()) {
+			return
 		}
+		this.setUniforms('tDiffuse', readBuffer.texture)
+		renderer.setRenderTarget(this.writeBuffer)
+		this.fsQuad.render(renderer)
+		if (this.renderToScreen) {
+			renderer.setRenderTarget(null)
+			this.fsQuad.render(renderer)
+		} else {
+			renderer.setRenderTarget(writeBuffer)
+			if (this.clear) {
+				renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil)
+			}
+			this.fsQuad.render(renderer)
+		}
+		this.swapBuffers()
 	}
 }
