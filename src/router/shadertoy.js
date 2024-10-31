@@ -6,14 +6,14 @@ export default [
 			{
 				path: 'noise',
 				meta: {
-					title: '噪波',
+					title: '测试',
 					icon: 'DoubleLeftOutlined',
 				},
 				children: [
 					{
 						path: 'noise01',
 						meta: {
-							title: '噪波测试1',
+							title: '基础渲染测试',
 							icon: 'DoubleLeftOutlined',
 						},
 						component: () => import('@/views/shaderToy/noise/noise01')

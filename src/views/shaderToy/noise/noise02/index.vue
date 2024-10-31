@@ -59,7 +59,7 @@ function init () {
     LonglowCommon,
     {
       fragmentShader: LonglowBufferA
-    },
+    }
   )
   composer.addPass(shadertoyPass)
 }

@@ -12,6 +12,7 @@ export class ShadertoyPass extends Pass {
 		BufferDParameters = undefined
 	) {
 		super()
+		this.isEnabled = ImageParameters !== undefined
 		this._Buffers = [
 			new ShadertoyBufferPass(renderer, ImageParameters, Common),
 			new ShadertoyBufferPass(renderer, BufferAParameters, Common),
@@ -19,7 +20,12 @@ export class ShadertoyPass extends Pass {
 			new ShadertoyBufferPass(renderer, BufferCParameters, Common),
 			new ShadertoyBufferPass(renderer, BufferDParameters, Common)
 		]
-		this._Buffers[0].renderToScreen = this.renderToScreen
+	}
+
+	set renderToScreen (val) {
+		if (this._Buffers && this._Buffers[0]) {
+			this._Buffers[0].renderToScreen = val
+		}
 	}
 
 	render (renderer, writeBuffer, readBuffer) {
@@ -40,11 +46,6 @@ export class ShadertoyPass extends Pass {
 		this._Buffers[bufferIndex].setChannel(channelIndex, value)
 	}
 
-	setRenderToScreen (val) {
-		this.renderToScreen = val
-		this._Buffers[0].renderToScreen = this.renderToScreen
-	}
-
 	getBuffer (bufferIndex) {
 		return this._Buffers[bufferIndex]
 	}
@@ -59,5 +60,10 @@ export class ShadertoyPass extends Pass {
 
 	setUniforms (bufferIndex, prop, value) {
 		return this._Buffers[bufferIndex].setUniforms(prop, value)
+	}
+
+	dispose () {
+		super.dispose()
+		this._Buffers.forEach(buffer => buffer.dispose())
 	}
 }

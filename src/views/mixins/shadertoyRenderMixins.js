@@ -12,9 +12,9 @@ export function useShadertoyRenderMixins (
 	BufferCParameters = undefined,
 	BufferDParameters = undefined
 ) {
+	const composer = ref(null)
+	const shadertoyPass = ref(null)
 	const renderMixins = useRenderMixin(domRefName)
-	let composer = ref(null)
-	let shadertoyPass = ref(null)
 
 	onMounted(() => {
 		composer.value = new EffectComposer(renderMixins.renderer.value)
@@ -27,7 +27,6 @@ export function useShadertoyRenderMixins (
 			BufferCParameters,
 			BufferDParameters
 		)
-		shadertoyPass.value.setRenderToScreen(true)
 		composer.value.addPass(shadertoyPass.value)
 	})
 
@@ -39,12 +38,13 @@ export function useShadertoyRenderMixins (
 	}
 
 	renderMixins.override.render = function () {
+		// 不能通过代理进行渲染，必须要获取原始数据才能渲染，toRaw能获取到ref的原始数据
 		toRaw(composer.value).render()
 	}
 
 	return {
+		...renderMixins,
 		composer,
-		shadertoyPass,
-		...renderMixins
+		shadertoyPass
 	}
 }

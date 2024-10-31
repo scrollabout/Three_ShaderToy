@@ -13,7 +13,7 @@ export class ShadertoyBufferPass extends Pass {
 			type: THREE.FloatType,
 		})
 		this.readBuffer = this.writeBuffer.clone()
-		// 兼容three.js其它传过来的Pass的渲染目标
+		// 兼容three.js其它通道传过来的渲染目标
 		const passCommonShader = 'uniform sampler2D tDiffuse;'
 		if (this.isEnabled()) {
 			if (parameters.uniforms) {
@@ -56,6 +56,14 @@ export class ShadertoyBufferPass extends Pass {
 
 	setChannel (channelIndex, value) {
 		return this.material.setChannel(channelIndex, value)
+	}
+
+	dispose(){
+		super.dispose()
+		this.writeBuffer.dispose()
+		this.readBuffer.dispose()
+		this.material.dispose()
+		this.fsQuad.dispose()
 	}
 
 	render (renderer, writeBuffer, readBuffer) {

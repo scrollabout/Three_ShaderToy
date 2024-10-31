@@ -14,7 +14,7 @@ import { ShadertoyPass } from '@/views/pass/ShadertoyPass'
 import LonglowCommon from '@/views/shaders/ShadertoyPassTest/LonglowCommon.frag'
 import LonglowImage from '@/views/shaders/ShadertoyPassTest/LonglowImage.frag'
 import LonglowBufferA from '@/views/shaders/ShadertoyPassTest/LonglowBufferA.frag'
-import { OutputPass, RenderPass } from 'three/addons'
+import { RenderPass } from 'three/addons'
 
 let composer = null
 let containerSize = {
@@ -27,7 +27,6 @@ let controls = null
 let scene = null
 let camera = null
 let shadertoyPass = null
-let outputPass = new OutputPass()
 
 const $refs = useTemplateRef('renderView')
 
@@ -66,20 +65,16 @@ function init () {
     LonglowCommon,
     { fragmentShader: LonglowBufferA }
   )
-  shadertoyPass.setRenderToScreen(false)
 
-
-  outputPass = new OutputPass()
   composer.addPass(renderPass)
   composer.addPass(shadertoyPass)
-  composer.addPass(outputPass)
 }
 
 // 创建渲染器
 function createRender () {
   renderer = new THREE.WebGLRenderer({
-    antialias:true,
-    alpha:true
+    antialias: true,
+    alpha: true
   })
   renderer.setClearAlpha(0)
   renderer.setPixelRatio(window.devicePixelRatio)
