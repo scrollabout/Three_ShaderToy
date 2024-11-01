@@ -84,7 +84,7 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 			iDate: { value: this._iDate },
 			// 各个纹理通道的时间（以秒为单位）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。(暂不知道如何赋值)
 			iChannelTime: { value: this._iChannelTime },
-			// 各个纹理通道的分辨率（宽度、高度和深度）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。
+			// 各个纹理通道的分辨率（宽度、高度和深度）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。(暂不知道如何赋值)
 			iChannelResolution: { value: this._iChannelResolution },
 			iChannel0: this._iChannels[0],
 			iChannel1: this._iChannels[1],
