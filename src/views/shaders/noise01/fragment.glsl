@@ -14,5 +14,4 @@ void main() {
         color += (t * (0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4)) * i * 0.5));
     }
     gl_FragColor = vec4(color, 1.0);
-    // gl_FragColor = vec4(0.85,0.85,0.85, 1.0);
 }

@@ -13,6 +13,7 @@ export class ShadertoyPass extends Pass {
 	) {
 		super()
 		this.enabled = ImageParameters !== undefined
+		this._renderToScreen = false
 		this._Buffers = [
 			new ShadertoyBufferPass(renderer, ImageParameters, Common),
 			new ShadertoyBufferPass(renderer, BufferAParameters, Common),
@@ -22,28 +23,56 @@ export class ShadertoyPass extends Pass {
 		]
 	}
 
+	get renderToScreen () {
+		return this._renderToScreen
+	}
+
 	set renderToScreen (val) {
-		if (this._Buffers && this._Buffers[0]) {
-			this._Buffers[0].renderToScreen = val
+		this._renderToScreen = val
+		if (this._Buffers && this.getBuffer(0)) {
+			this.getBuffer(0).renderToScreen = val
 		}
 	}
 
 	render (renderer, writeBuffer, readBuffer) {
 		for (let i = this._Buffers.length - 1; i >= 0; i--) {
-			if (this._Buffers[i].enabled) {
-				this._Buffers[i].render(renderer, writeBuffer, readBuffer)
+			if (this.getBuffer(i).enabled) {
+				this.getBuffer(i).render(renderer, writeBuffer, readBuffer)
 			}
 		}
 	}
 
 	/**
 	 * 设置iChannelx
-	 * @param bufferIndex Buffer编号，0：Image，1：BufferA，2：BufferB，3：BufferC，4：BufferD
-	 * @param channelIndex iChannel编号
+	 * @param bufferIndex Buffer序号，0：Image，1：BufferA，2：BufferB，3：BufferC，4：BufferD
+	 * @param channelIndex iChannel序号
 	 * @param value	设置给iChannel的值，现阶段只支持传sampler2D（texture）
 	 */
 	setIChannel (bufferIndex, channelIndex, value) {
-		this._Buffers[bufferIndex].setChannel(channelIndex, value)
+		this.getBuffer(bufferIndex).setChannel(channelIndex, value)
+	}
+
+	/**
+	 * 为Buffer设置iChannel，如果要使用其它Buffer的渲染结果作为iChannel，应该使用该函数。
+	 * 相比于setIChannel函数，该函数能同时设置目标的iChannelTime、iChannelResolution
+	 * 0：Image，1：BufferA，2：BufferB，3：BufferC，4：BufferD
+	 * @param targetBufferIndex 要设置Buffer的序号
+	 * @param targetChannelIndex Buffer要设置的iChannel的序号
+	 * @param bufferIndex	作为iChannel的Buffer的序号
+	 */
+	setIChannelBuffer (targetBufferIndex, targetChannelIndex, bufferIndex) {
+		const targetBuffer = this.getBuffer(targetBufferIndex)
+		const channelBuffer = this.getBuffer(bufferIndex)
+		// 设置targetBuffer的iChannelx输入为channelBuffer的渲染结果
+		targetBuffer.setChannel(targetChannelIndex, this.getBufferRenderTarget(bufferIndex).texture)
+		// 设置targetBuffer的iChannelTime对应位置的值为channelBuffer的iTime（渲染时长）
+		const iChannelTime = targetBuffer.getUniforms('iChannelTime')
+		iChannelTime[targetChannelIndex] = channelBuffer.getUniforms('iTime')
+		targetBuffer.setUniforms('iChannelTime', iChannelTime)
+		// 设置targetBuffer的iChannelResolution对应位置的值为channelBuffer的iResolution
+		const iChannelResolution = targetBuffer.getUniforms('iChannelResolution')
+		iChannelResolution[targetChannelIndex] = channelBuffer.getUniforms('iResolution')
+		targetBuffer.setUniforms('iChannelResolution', iChannelResolution)
 	}
 
 	getBuffer (bufferIndex) {
@@ -54,12 +83,8 @@ export class ShadertoyPass extends Pass {
 		return this.getBuffer(bufferIndex).readBuffer
 	}
 
-	getRenderMesh () {
-		return this._Buffers[0].fsQuad
-	}
-
 	setUniforms (bufferIndex, prop, value) {
-		return this._Buffers[bufferIndex].setUniforms(prop, value)
+		return this.getBuffer(bufferIndex).setUniforms(prop, value)
 	}
 
 	dispose () {

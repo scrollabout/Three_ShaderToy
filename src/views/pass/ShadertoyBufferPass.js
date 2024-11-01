@@ -7,7 +7,6 @@ export class ShadertoyBufferPass extends Pass {
 		this.renderer = renderer
 		const renderSize = new THREE.Vector2(0, 0)
 		renderer.getSize(renderSize)
-		this.enabled = parameters !== undefined
 		this.writeBuffer = new THREE.WebGLRenderTarget(renderSize.x, renderSize.y, {
 			format: THREE.RGBAFormat,
 			type: THREE.FloatType,
@@ -15,7 +14,7 @@ export class ShadertoyBufferPass extends Pass {
 		this.readBuffer = this.writeBuffer.clone()
 		// 兼容three.js其它通道传过来的渲染目标
 		let localcommon = common
-		if (this.enabled) {
+		if (parameters !== undefined) {
 			const passCommonShader = [
 				'uniform sampler2D tDiffuse;'
 			]
@@ -30,6 +29,18 @@ export class ShadertoyBufferPass extends Pass {
 		}
 		this.material = new ShadertoyMaterial(parameters, localcommon)
 		this.fsQuad = new FullScreenQuad(this.material)
+		this._enabled = parameters !== undefined
+	}
+
+	get enabled () {
+		return this._enabled
+	}
+
+	set enabled (val) {
+		this._enabled = val
+		if (this.material) {
+			this.material.setCanUpdateShadertoyUniform(val)
+		}
 	}
 
 	swapBuffers () {
@@ -44,6 +55,10 @@ export class ShadertoyBufferPass extends Pass {
 		super.setSize(width, height)
 		this.writeBuffer.setSize(width, height)
 		this.readBuffer.setSize(width, height)
+	}
+
+	getUniforms (prop) {
+		return this.material.getUniforms(prop)
 	}
 
 	setUniforms (prop, value) {

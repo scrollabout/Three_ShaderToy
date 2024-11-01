@@ -13,6 +13,7 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		this._iChannelResolution = new Array(4).fill(new THREE.Vector3(0, 0, 0))
 		this._iMouse = new THREE.Vector4(0, 0, 0, 0)
 		this._iDate = new THREE.Vector4(0, 0, 0, 0)
+		this._canUpdateUniform = true
 		if (parameters !== undefined) {
 			const baseUniformArray = [
 				'uniform vec3 iResolution;',
@@ -82,9 +83,10 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 			iMouse: { value: this._iMouse },
 			// 表示当前的年（x）、月（y）、日（z）、时间（时分秒转化为以秒计数）
 			iDate: { value: this._iDate },
-			// 各个纹理通道的时间（以秒为单位）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。(暂不知道如何赋值)
+			// iChannelTime、iChannelResolution现只支持在ShadertoyPass中使用，并且iChannelXX只有赋值ShadertoyPass中的Buffer才行
+			// 各个纹理通道的时间（以秒为单位）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。
 			iChannelTime: { value: this._iChannelTime },
-			// 各个纹理通道的分辨率（宽度、高度和深度）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。(暂不知道如何赋值)
+			// 各个纹理通道的分辨率（宽度、高度和深度）。通道0对应sampler2D iChannel0，通道1对应sampler2D iChannel1，以此类推。
 			iChannelResolution: { value: this._iChannelResolution },
 			iChannel0: this._iChannels[0],
 			iChannel1: this._iChannels[1],
@@ -98,8 +100,7 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		this._mousedownHandler = null
 		this._mouseupHandler = null
 
-		this._InitTime = 0
-		this._currentTime = 0
+		this._currentTime = Date.now()
 		this._renderFrame = 0
 	}
 
@@ -107,27 +108,29 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		super.onBeforeRender(renderer, scene, camera, geometry, object, group)
 		// 设置当前渲染区域大小
 		renderer.getSize(this._iResolution)
-		const now = Date.now()
-		// 设置已渲染时长
-		this.uniforms.iTime.value = (now - this._InitTime) / 1000
-		// 设置当前帧与上一帧的渲染时间差
-		this.uniforms.iTimeDelta.value = (now - this._currentTime) / 1000
-		// 设置当前渲染帧率
-		this.uniforms.iFrameRate.value = Math.floor(1000 / (now - this._currentTime))
-		this._currentTime = now
-		// 设置当前渲染帧数
-		this.uniforms.iFrame.value = this._renderFrame
-		this._renderFrame = this._renderFrame + 1
-		// 设置当前时间
-		this._iDate.set(dayjs().year(), dayjs().month() + 1, dayjs().day(), dayjs().hour() * 3600 + dayjs().minute() * 60 + dayjs().second())
+		if (this._canUpdateUniform) {
+			const now = Date.now()
+			const deltaTime = now - this._currentTime
+			// 设置当前帧与上一帧的渲染时间差
+			this.uniforms.iTimeDelta.value = deltaTime / 1000
+			// 设置已渲染时长
+			this.uniforms.iTime.value = this.uniforms.iTime.value + this.uniforms.iTimeDelta.value
+			// 设置当前渲染帧率
+			this.uniforms.iFrameRate.value = Math.floor(1000 / deltaTime)
+			this._currentTime = now
+			// 设置当前渲染帧数
+			this._renderFrame = this._renderFrame + 1
+			this.uniforms.iFrame.value = this._renderFrame
+			// 设置当前时间
+			this._iDate.set(dayjs().year(), dayjs().month() + 1, dayjs().day(), dayjs().hour() * 3600 + dayjs().minute() * 60 + dayjs().second())
+		}
 	}
 
 	onBeforeCompile (shaderobject, renderer) {
+		// onBeforeCompile居然在onBeforeRender执行了一次后才执行
 		super.onBeforeCompile(shaderobject, renderer)
 		this._renderer = renderer
-		this._InitTime = Date.now()
-		this._currentTime = Date.now()
-		this._renderer.getSize(this._iResolution)
+		this.setCanUpdateShadertoyUniform(this._canUpdateUniform)
 		this._mousemoveHandler = this._renderer.domElement.addEventListener('mousemove', (e) => {
 			this.onMouseMove(e)
 		})
@@ -137,6 +140,13 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		this._mouseupHandler = this._renderer.domElement.addEventListener('mouseup', (e) => {
 			this.onMouseUp(e)
 		})
+	}
+
+	setCanUpdateShadertoyUniform (val) {
+		this._canUpdateUniform = val
+		if (this._canUpdateUniform) {
+			this._currentTime = Date.now()
+		}
 	}
 
 	dispose () {
@@ -154,8 +164,16 @@ export class ShadertoyMaterial extends THREE.ShaderMaterial {
 		return this._iChannels[channelIndex].value = value
 	}
 
+	getUniforms (prop) {
+		return _.cloneDeep(this.uniforms[prop].value)
+	}
+
 	setUniforms (prop, value) {
-		this.uniforms[prop].value = value
+		if (this.uniforms[prop].value && (this.uniforms[prop].value.isVector4 || this.uniforms[prop].value.isVector3 || this.uniforms[prop].value.isVector2)) {
+			this.uniforms[prop].value.copy(value)
+		} else {
+			this.uniforms[prop].value = value
+		}
 	}
 
 	onMouseMove (e) {

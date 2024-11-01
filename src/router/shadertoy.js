@@ -41,6 +41,14 @@ export default [
 							icon: 'DoubleLeftOutlined',
 						},
 						component: () => import('@/views/shaderToy/noise/noise04')
+					},
+					{
+						path: 'noise05',
+						meta: {
+							title: '暂停',
+							icon: 'DoubleLeftOutlined',
+						},
+						component: () => import('@/views/shaderToy/noise/noise05')
 					}
 				]
 			}
