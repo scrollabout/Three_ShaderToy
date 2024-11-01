@@ -121,7 +121,7 @@ function onWindowResize () {
 
 // 渲染
 function render () {
-  shadertoyPass.setIChannel(0, 0, shadertoyPass.getBufferRenderTarget(1).texture)
+  shadertoyPass.setIChannelBuffer(0, 0, 1)
   composer.render()
 }
 </script>
