@@ -49,6 +49,14 @@ export default [
 							icon: 'DoubleLeftOutlined',
 						},
 						component: () => import('@/views/shaderToy/noise/noise05')
+					},
+					{
+						path: 'noise06',
+						meta: {
+							title: '渲染流程分解',
+							icon: 'DoubleLeftOutlined',
+						},
+						component: () => import('@/views/shaderToy/noise/noise06')
 					}
 				]
 			}
