@@ -14,6 +14,7 @@ export class ShadertoyPass extends Pass {
 		super()
 		this.enabled = ImageParameters !== undefined
 		this._renderToScreen = false
+		console.log(renderer)
 		this._Buffers = [
 			new ShadertoyBufferPass(renderer, ImageParameters, Common),
 			new ShadertoyBufferPass(renderer, BufferAParameters, Common),
@@ -37,7 +38,7 @@ export class ShadertoyPass extends Pass {
 	render (renderer, writeBuffer, readBuffer) {
 		for (let i = this._Buffers.length - 1; i >= 0; i--) {
 			if (this.getBuffer(i).enabled) {
-				this.getBuffer(i).render(renderer, writeBuffer, readBuffer)
+				this.getBuffer(i).render(renderer, i === 0 ? writeBuffer : null, readBuffer)
 			}
 		}
 	}
@@ -55,9 +56,8 @@ export class ShadertoyPass extends Pass {
 	/**
 	 * 为Buffer设置iChannel，如果要使用其它Buffer的渲染结果作为iChannel，应该使用该函数。
 	 * 相比于setIChannel函数，该函数能同时设置目标的iChannelTime、iChannelResolution
-	 * 0：Image，1：BufferA，2：BufferB，3：BufferC，4：BufferD
-	 * @param targetBufferIndex 要设置Buffer的序号
-	 * @param targetChannelIndex Buffer要设置的iChannel的序号
+	 * @param targetBufferIndex 要设置Buffer的序号(0：Image，1：BufferA，2：BufferB，3：BufferC，4：BufferD)
+	 * @param targetChannelIndex Buffer要设置的iChannel的序号(0：iChannel0，1：iChannel1，2：iChannel2，3：iChannel3)
 	 * @param bufferIndex	作为iChannel的Buffer的序号
 	 */
 	setIChannelBuffer (targetBufferIndex, targetChannelIndex, bufferIndex) {

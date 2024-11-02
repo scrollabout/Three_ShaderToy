@@ -31,20 +31,20 @@ import proceduralOcean from '@/views/shaders/proceduralOcean/proceduralOcean.fra
 const route = useRoute()
 const router = useRouter()
 
-const fullPath = route.fullPath.split('/')
+const fullPath = route.path.split('/')
 const currentModule = router.options.routes.find(v => v.path === `/${fullPath[1]}`)
 const collapsed = ref(false)
 const menuTree = recursion(currentModule ? currentModule.children : [], currentModule.path)
 const items = reactive(menuTree)
-const selectedKeys = ref([route.fullPath])
-const openKeys = ref([...findTreeFollowPath(menuTree, route.fullPath)])
+const selectedKeys = ref([route.path])
+const openKeys = ref([...findTreeFollowPath(menuTree, route.path)])
 
-useShadertoyRenderMixins('mainBackground', {
-  fragmentShader: proceduralOcean
-})
+// useShadertoyRenderMixins('mainBackground', {
+//   fragmentShader: proceduralOcean
+// })
 
 function getItem (label, key, icon, children, type) {
-  return { key, icon: () => h(resolveComponent(icon)), children, label, type }
+  return { key, icon: () => h(resolveComponent(icon)), children, label: route.query.isHidden === '1' ? '' : label, type }
 }
 
 function recursion (routerData, parentPath, resultMenuTree = []) {

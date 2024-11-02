@@ -1,5 +1,6 @@
 import { Pass, FullScreenQuad } from 'three/addons'
 import { ShadertoyMaterial } from '@/views/material/ShadertoyMaterial'
+import { HalfFloatType, UnsignedIntType } from 'three'
 
 export class ShadertoyBufferPass extends Pass {
 	constructor (renderer, parameters, common = undefined) {
@@ -86,18 +87,21 @@ export class ShadertoyBufferPass extends Pass {
 			return
 		}
 		this.setUniforms('tDiffuse', readBuffer.texture)
+		const oldRT = renderer.getRenderTarget()
 		renderer.setRenderTarget(this.writeBuffer)
+		renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil)
 		this.fsQuad.render(renderer)
 		if (this.renderToScreen) {
 			renderer.setRenderTarget(null)
 			this.fsQuad.render(renderer)
-		} else {
+		} else if (writeBuffer) {
 			renderer.setRenderTarget(writeBuffer)
 			if (this.clear) {
 				renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil)
 			}
 			this.fsQuad.render(renderer)
 		}
+		renderer.setRenderTarget(oldRT)
 		this.swapBuffers()
 	}
 }

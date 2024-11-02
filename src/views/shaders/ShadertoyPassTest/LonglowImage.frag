@@ -54,5 +54,5 @@ void main()
 
     vec4 base = texture2D(tDiffuse, uv);
 
-    gl_FragColor = vec4(length(base.rgb) > 0.0 ? base.rgb : col.rgb, 1);
+    gl_FragColor = vec4(base.a > 0.0 ? base.rgb : col.rgb, 1.);
 }
