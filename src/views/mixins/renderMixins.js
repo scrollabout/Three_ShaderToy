@@ -2,69 +2,60 @@ import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 export function useRenderMixin (domRefName) {
-	const domElement = useTemplateRef(domRefName)
-	let renderer = ref(null)
-	let camera = ref(null)
-	let cameraControls = ref(null)
-
-	const override = {
+	const renderMixin = {
+		rendererView: useTemplateRef(domRefName),
+		renderer: null,
+		camera: null,
+		cameraControls: null,
 		createRender () {
-			const { width, height } = override.getDomSize()
-			renderer.value = new THREE.WebGLRenderer()
-			renderer.value.setPixelRatio(window.devicePixelRatio)
-			renderer.value.setSize(width, height)
+			const { width, height } = renderMixin.getDomSize()
+			renderMixin.renderer = new THREE.WebGLRenderer()
+			renderMixin.renderer.setPixelRatio(window.devicePixelRatio)
+			renderMixin.renderer.setSize(width, height)
 			// renderer.toneMapping = THREE.NoToneMapping
 			// renderer.toneMappingExposure = 0.5
-			domElement.value.appendChild(renderer.value.domElement)
+			renderMixin.rendererView.value.appendChild(renderMixin.renderer.domElement)
 		},
-
 		createCamera () {
-			const { width, height } = override.getDomSize()
-			camera.value = new THREE.PerspectiveCamera(60, width / height)
+			const { width, height } = renderMixin.getDomSize()
+			renderMixin.camera = new THREE.PerspectiveCamera(60, width / height)
 		},
-
 		createCameraControl () {
-			cameraControls.value = new OrbitControls(camera.value, renderer.value.domElement)
+			renderMixin.cameraControls = new OrbitControls(renderMixin.camera, renderMixin.renderer.rendererView)
 		},
-
 		getDomSize () {
-			const width = domElement.value ? domElement.value.offsetWidth : 0
-			const height = domElement.value ? domElement.value.offsetHeight : 0
+			const width = renderMixin.rendererView?.value ? renderMixin.rendererView.value.offsetWidth : 0
+			const height = renderMixin.rendererView?.value ? renderMixin.rendererView.value.offsetHeight : 0
 			return {
 				width,
 				height
 			}
 		},
-
-		onWindowResize () {
-			const { width, height } = override.getDomSize()
-			camera.value.aspect = width / height
-			camera.value.updateProjectionMatrix()
-			renderer.value.setSize(width, height)
+		getRenderer () {
+			return renderMixin.renderer
 		},
-
+		onWindowResize () {
+			const { width, height } = renderMixin.getDomSize()
+			renderMixin.camera.aspect = width / height
+			renderMixin.camera.updateProjectionMatrix()
+			renderMixin.renderer.setSize(width, height)
+		},
 		render () {
 		}
 	}
 
 	onMounted(() => {
-		window.addEventListener('resize', override.onWindowResize)
-		override.createRender()
-		override.createCamera()
-		override.createCameraControl()
-		renderer.value.setAnimationLoop(override.render)
+		window.addEventListener('resize', renderMixin.onWindowResize)
+		renderMixin.createRender()
+		renderMixin.createCamera()
+		renderMixin.createCameraControl()
+		renderMixin.renderer.setAnimationLoop(renderMixin.render)
 	})
 
 	onUnmounted(() => {
-		window.removeEventListener('mousemove', override.onWindowResize)
-		renderer.value.setAnimationLoop(null)
+		window.removeEventListener('resize', renderMixin.onWindowResize)
+		renderMixin.renderer.setAnimationLoop(null)
 	})
 
-	return {
-		rendererView: domElement,
-		renderer,
-		camera,
-		override,
-		...override
-	}
+	return renderMixin
 }

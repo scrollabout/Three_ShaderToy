@@ -1,6 +1,6 @@
 import { Pass, FullScreenQuad } from 'three/addons'
 import { ShadertoyMaterial } from '@/views/material/ShadertoyMaterial'
-import { HalfFloatType, UnsignedIntType } from 'three'
+import { HalfFloatType, UnsignedByteType, UnsignedIntType } from 'three'
 
 export class ShadertoyBufferPass extends Pass {
 	constructor (renderer, parameters, common = undefined) {
@@ -10,7 +10,7 @@ export class ShadertoyBufferPass extends Pass {
 		renderer.getSize(renderSize)
 		this.writeBuffer = new THREE.WebGLRenderTarget(renderSize.x, renderSize.y, {
 			format: THREE.RGBAFormat,
-			type: THREE.FloatType,
+			type: THREE.UnsignedByteType,
 		})
 		this.readBuffer = this.writeBuffer.clone()
 		// 兼容three.js其它通道传过来的渲染目标

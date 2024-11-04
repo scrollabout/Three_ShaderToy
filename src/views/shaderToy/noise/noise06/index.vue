@@ -9,7 +9,7 @@
       class="full-view flex-auto-height"
       style="height: 50%;"
     >
-      <div
+      <canvas
         ref="BufferAStep"
         class="full-view"
       />
@@ -31,17 +31,12 @@ import Image from '@/views/shaders/noise06/Image.frag'
 import BufferA from '@/views/shaders/noise06/BufferA.frag'
 import BufferB from '@/views/shaders/noise06/BufferB.frag'
 import BufferC from '@/views/shaders/noise06/BufferC.frag'
-import textureRender from '@/views/shaders/textureRender/Image.frag'
-import ShadertoyMaterial from '@/views/shaders/ShadertoyMaterial/vertex.glsl'
-import { onMounted, toRaw } from 'vue'
-import { useRenderMixin } from '@/views/mixins/renderMixins'
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
+import { onMounted, useTemplateRef, toRaw } from 'vue'
 
 // image:0:B,1:C
 // C:0:B,1:C
 // B:0:A
-// const BufferAStep = useTemplateRef('BufferAStep')
+const BufferAStep = useTemplateRef('BufferAStep')
 /*
 const BufferBStep = useTemplateRef('BufferBStep')
 const BufferCStep = useTemplateRef('BufferCStep')
@@ -61,63 +56,36 @@ function previewBufferRender (domElement, RT) {
     return
   }
   const ctx = domElement.value.getContext('2d')
-  const buffer = new Uint8Array(RT.width * RT.height * 4)
+  const { width, height } = RT
+  const buffer = new Uint8Array(width * height * 4)
+  shadertoy.renderMixins.renderer.readRenderTargetPixels(RT, 0, 0, width, height, buffer) // 读取像素到 buffer
   const clamped = new Uint8ClampedArray(buffer.buffer)
-  shadertoy.renderer.value.readRenderTargetPixels(RT, 0, 0, RT.width, RT.height, buffer) // 读取像素到 buffer
-  const imageData = new ImageData(clamped, RT.width, RT.height) // 创建可供 canvas 使用的图像数据类型
+  const imageData = new ImageData(clamped, width, height) // 创建可供 canvas 使用的图像数据类型
   ctx.putImageData(imageData, 0, 0) // 绘制到 canvas 中
+  // const imageObject = new Image()
+  // imageObject.onload = function () {
+  //   ctx.clearRect(0, 0, width, height)
+  //   ctx.scale(0.25, 0.25)
+  //   ctx.drawImage(imageObject, 0, 0)
+  // }
+  // imageObject.src = domElement.value.toDataURL()
+  // ctx.scale(0.025, 0.025)
+  // ctx.drawImage(domElement.value, 0, 0)
 }
 
-shadertoy.override.render = () => {
-  shadertoy.shadertoyPass.value.setIChannelBuffer(0, 0, 2)
-  shadertoy.shadertoyPass.value.setIChannelBuffer(0, 1, 3)
-  shadertoy.shadertoyPass.value.setIChannelBuffer(3, 0, 2)
-  shadertoy.shadertoyPass.value.setIChannelBuffer(3, 1, 3)
-  shadertoy.shadertoyPass.value.setIChannelBuffer(2, 0, 1)
-  toRaw(shadertoy.composer.value).render()
-  // const RT = shadertoy.shadertoyPass.value.getBufferRenderTarget(0)
-  // const width = 10
-  // const height = 10
-  // const buffer = new Uint32Array(width * height * 4)
-  // shadertoy.renderer.value.readRenderTargetPixels(RT, 0, 0, width, height, buffer)
-  // console.log(RT)
-  // console.log('render1', shadertoy.shadertoyPass.value.getBufferRenderTarget(1).texture.uuid)
+shadertoy.renderMixins.render = () => {
+  shadertoy.shadertoyPass.setIChannelBuffer(0, 0, 2)
+  shadertoy.shadertoyPass.setIChannelBuffer(0, 1, 3)
+  shadertoy.shadertoyPass.setIChannelBuffer(3, 0, 2)
+  shadertoy.shadertoyPass.setIChannelBuffer(3, 1, 3)
+  shadertoy.shadertoyPass.setIChannelBuffer(2, 0, 1)
+  toRaw(shadertoy.composer).render()
+  previewBufferRender(BufferAStep, shadertoy.shadertoyPass.getBufferRenderTarget(1))
   // previewBufferRender(BufferAStep, shadertoy.shadertoyPass.value.getBufferRenderTarget(1))
   /*
   previewBufferRender(BufferBStep, shadertoy.shadertoyPass.value.getBufferRenderTarget(2))
   previewBufferRender(BufferCStep, shadertoy.shadertoyPass.value.getBufferRenderTarget(3))
   */
 }
-
-const textureRenderPass = new ShaderPass({
-  uniforms: {
-    RTTexture: { value: null },
-    iResolution: { value: new THREE.Vector2(0, 0) },
-  },
-  vertexShader: ShadertoyMaterial,
-  fragmentShader: textureRender
-})
-
-let composer = null
-const renderMixins = useRenderMixin('BufferAStep')
-
-renderMixins.override.render = () => {
-  textureRenderPass.material.uniforms.iResolution.value.set(composer._width, composer._height)
-  composer.render()
-  // console.log('render2', textureRenderPass.material.uniforms.RTTexture.value.uuid)
-}
-
-onMounted(() => {
-  composer = new EffectComposer(renderMixins.renderer.value)
-  composer.addPass(textureRenderPass)
-  // textureRenderPass.uniforms.RTTexture.value = shadertoy.shadertoyPass.value.getBufferRenderTarget(1).texture
-  // const image = require('./logo.png')
-  // new THREE.TextureLoader().load(image, (texture) => {
-  //   console.log(texture)
-  //   texture.colorSpace = THREE.SRGBColorSpace
-  //   textureRenderPass.uniforms.RTTexture.value = texture
-  // })
-})
-
 
 </script>

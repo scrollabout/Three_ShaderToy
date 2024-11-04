@@ -1,7 +1,8 @@
 import { useRenderMixin } from '@/views/mixins/renderMixins'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { ShadertoyPass } from '@/views/pass/ShadertoyPass'
-import { onMounted, ref, toRaw } from 'vue'
+import { onMounted, reactive, ref, toRaw } from 'vue'
+import { OutputPass } from 'three/addons'
 
 export function useShadertoyRenderMixins (
 	domRefName,
@@ -12,14 +13,16 @@ export function useShadertoyRenderMixins (
 	BufferCParameters = undefined,
 	BufferDParameters = undefined
 ) {
-	const composer = ref(null)
-	const shadertoyPass = ref(null)
-	const renderMixins = useRenderMixin(domRefName)
+	const shadertoyRenderMixins = {
+		composer: null,
+		shadertoyPass: null,
+		renderMixins: useRenderMixin(domRefName)
+	}
 
 	onMounted(() => {
-		composer.value = new EffectComposer(renderMixins.renderer.value)
-		shadertoyPass.value = new ShadertoyPass(
-			renderMixins.renderer.value,
+		shadertoyRenderMixins.composer = new EffectComposer(shadertoyRenderMixins.renderMixins.renderer)
+		shadertoyRenderMixins.shadertoyPass = new ShadertoyPass(
+			shadertoyRenderMixins.renderMixins.renderer,
 			ImageParameters,
 			Common,
 			BufferAParameters,
@@ -27,24 +30,22 @@ export function useShadertoyRenderMixins (
 			BufferCParameters,
 			BufferDParameters
 		)
-		composer.value.addPass(shadertoyPass.value)
+		shadertoyRenderMixins.composer.addPass(shadertoyRenderMixins.shadertoyPass)
+		shadertoyRenderMixins.composer.addPass(new OutputPass())
 	})
 
-	renderMixins.override.onWindowResize = function () {
-		renderMixins.onWindowResize()
-		const size = new THREE.Vector2()
-		renderMixins.renderer.value.getSize(size)
-		composer.value.setSize(size.x, size.y)
+	shadertoyRenderMixins.renderMixins.onWindowResize = function () {
+		const { width, height } = shadertoyRenderMixins.renderMixins.getDomSize()
+		shadertoyRenderMixins.renderMixins.camera.aspect = width / height
+		shadertoyRenderMixins.renderMixins.camera.updateProjectionMatrix()
+		shadertoyRenderMixins.renderMixins.renderer.setSize(width, height)
+		shadertoyRenderMixins.composer.setSize(width, height)
 	}
 
-	renderMixins.override.render = function () {
+	shadertoyRenderMixins.renderMixins.render = function () {
 		// 不能通过代理进行渲染，必须要获取原始数据才能渲染，toRaw能获取到ref的原始数据
-		toRaw(composer.value).render()
+		toRaw(shadertoyRenderMixins.composer).render()
 	}
 
-	return {
-		...renderMixins,
-		composer,
-		shadertoyPass
-	}
+	return shadertoyRenderMixins
 }

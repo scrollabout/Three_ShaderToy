@@ -14,7 +14,6 @@ export class ShadertoyPass extends Pass {
 		super()
 		this.enabled = ImageParameters !== undefined
 		this._renderToScreen = false
-		console.log(renderer)
 		this._Buffers = [
 			new ShadertoyBufferPass(renderer, ImageParameters, Common),
 			new ShadertoyBufferPass(renderer, BufferAParameters, Common),
