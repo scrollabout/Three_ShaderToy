@@ -3,24 +3,23 @@
     <div
       ref="renderView"
       class="full-view"
-      style="height: 50%;"
     />
     <div
-      class="full-view flex-auto-height"
-      style="height: 50%;"
+      class="flex-column"
+      style="position: absolute; right: 20px; top: 20px;"
     >
       <canvas
         ref="BufferAStep"
-        class="full-view"
+        class="step-canvas"
       />
-      <!--      <canvas
-              ref="BufferBStep"
-              style="right: 0; top: 0; width: 300px; height: 180px; margin-bottom: 20px; background: white;"
-            />
-            <canvas
-              ref="BufferCStep"
-              style="right: 0; top: 0; width: 300px; height: 180px; margin-bottom: 20px; background: white;"
-            />-->
+      <canvas
+        ref="BufferBStep"
+        class="step-canvas"
+      />
+      <canvas
+        ref="BufferCStep"
+        class="step-canvas"
+      />
     </div>
   </div>
 </template>
@@ -31,16 +30,11 @@ import Image from '@/views/shaders/noise06/Image.frag'
 import BufferA from '@/views/shaders/noise06/BufferA.frag'
 import BufferB from '@/views/shaders/noise06/BufferB.frag'
 import BufferC from '@/views/shaders/noise06/BufferC.frag'
-import { onMounted, useTemplateRef, toRaw } from 'vue'
+import { useTemplateRef } from 'vue'
 
-// image:0:B,1:C
-// C:0:B,1:C
-// B:0:A
 const BufferAStep = useTemplateRef('BufferAStep')
-/*
 const BufferBStep = useTemplateRef('BufferBStep')
 const BufferCStep = useTemplateRef('BufferCStep')
-*/
 
 const shadertoy = useShadertoyRenderMixins(
   'renderView',
@@ -61,16 +55,9 @@ function previewBufferRender (domElement, RT) {
   shadertoy.renderMixins.renderer.readRenderTargetPixels(RT, 0, 0, width, height, buffer) // 读取像素到 buffer
   const clamped = new Uint8ClampedArray(buffer.buffer)
   const imageData = new ImageData(clamped, width, height) // 创建可供 canvas 使用的图像数据类型
-  ctx.putImageData(imageData, 0, 0) // 绘制到 canvas 中
-  // const imageObject = new Image()
-  // imageObject.onload = function () {
-  //   ctx.clearRect(0, 0, width, height)
-  //   ctx.scale(0.25, 0.25)
-  //   ctx.drawImage(imageObject, 0, 0)
-  // }
-  // imageObject.src = domElement.value.toDataURL()
-  // ctx.scale(0.025, 0.025)
-  // ctx.drawImage(domElement.value, 0, 0)
+  // 绘制到 canvas 中
+  // TODO: 图片压缩
+  ctx.putImageData(imageData, 0, 0)
 }
 
 shadertoy.renderMixins.render = () => {
@@ -79,13 +66,21 @@ shadertoy.renderMixins.render = () => {
   shadertoy.shadertoyPass.setIChannelBuffer(3, 0, 2)
   shadertoy.shadertoyPass.setIChannelBuffer(3, 1, 3)
   shadertoy.shadertoyPass.setIChannelBuffer(2, 0, 1)
-  toRaw(shadertoy.composer).render()
+  shadertoy.composer.render()
   previewBufferRender(BufferAStep, shadertoy.shadertoyPass.getBufferRenderTarget(1))
-  // previewBufferRender(BufferAStep, shadertoy.shadertoyPass.value.getBufferRenderTarget(1))
-  /*
-  previewBufferRender(BufferBStep, shadertoy.shadertoyPass.value.getBufferRenderTarget(2))
-  previewBufferRender(BufferCStep, shadertoy.shadertoyPass.value.getBufferRenderTarget(3))
-  */
+  previewBufferRender(BufferBStep, shadertoy.shadertoyPass.getBufferRenderTarget(2))
+  previewBufferRender(BufferCStep, shadertoy.shadertoyPass.getBufferRenderTarget(3))
 }
 
 </script>
+
+<style lang="scss" scoped>
+.step-canvas {
+  right: 0;
+  top: 0;
+  width: 300px;
+  height: 180px;
+  margin-bottom: 20px;
+  background: white;
+}
+</style>
