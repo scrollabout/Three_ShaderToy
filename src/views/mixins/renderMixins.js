@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 export function useRenderMixin (domRefName) {
@@ -31,17 +31,13 @@ export function useRenderMixin (domRefName) {
 				height
 			}
 		},
-		getRenderer () {
-			return renderMixin.renderer
-		},
 		onWindowResize () {
 			const { width, height } = renderMixin.getDomSize()
 			renderMixin.camera.aspect = width / height
 			renderMixin.camera.updateProjectionMatrix()
 			renderMixin.renderer.setSize(width, height)
 		},
-		render () {
-		}
+		render () {}
 	}
 
 	onMounted(() => {
@@ -54,7 +50,7 @@ export function useRenderMixin (domRefName) {
 
 	onUnmounted(() => {
 		window.removeEventListener('resize', renderMixin.onWindowResize)
-		renderMixin.renderer.setAnimationLoop(null)
+		renderMixin.renderer && renderMixin.renderer.setAnimationLoop(null)
 	})
 
 	return renderMixin

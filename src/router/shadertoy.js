@@ -53,10 +53,26 @@ export default [
 					{
 						path: 'noise06',
 						meta: {
-							title: '渲染流程分解',
+							title: 'canvas渲染流程分解',
 							icon: 'DoubleLeftOutlined',
 						},
 						component: () => import('@/views/shaderToy/noise/noise06')
+					},
+					{
+						path: 'noise07',
+						meta: {
+							title: 'three.js渲染流程分解',
+							icon: 'DoubleLeftOutlined',
+						},
+						component: () => import('@/views/shaderToy/noise/noise07')
+					},
+					{
+						path: 'noise08',
+						meta: {
+							title: 'sketch-threejs-beam',
+							icon: 'DoubleLeftOutlined',
+						},
+						component: () => import('@/views/shaderToy/noise/noise08')
 					}
 				]
 			}
