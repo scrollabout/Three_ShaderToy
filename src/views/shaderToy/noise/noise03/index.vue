@@ -74,6 +74,7 @@ function init () {
 function createRender () {
   renderer = new THREE.WebGLRenderer({
     antialias: true,
+    // 不渲染未通过alpha测试的像素
     alpha: true
   })
   renderer.setClearAlpha(0)
